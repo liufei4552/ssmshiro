@@ -1,0 +1,53 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+			<bean id="credentialsMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+				<property name="hashAlgorithmName" value="md5"/>
+				<property name="hashIterations" value="3"/>
+			</bean>
+			<bean id="shiroDemoRealm" class="com.beautifulsoup.shiro.ssmdemo.realm.ShiroDemoRealm">
+				<property name="credentialsMatcher" ref="credentialsMatcher"></property>
+			</bean>
+			<!-- 配置安全管理器 -->
+			<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+				<property name="realm" ref="shiroDemoRealm" />
+				<property name="cacheManager" ref="cacheManager"></property>
+			</bean>
+			<!-- Shiro 的Web过滤器 -->
+			<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+				<property name="securityManager" ref="securityManager" />
+				<!-- 如果没有认证将要跳转的登陆地址 -->
+				<property name="loginUrl" value="/login.action" />
+				<!-- 认证成功统一跳转url，不配置shiro认证成功自动跳转到上一个请求路径 -->
+				<property name="successUrl" value="/index.action"></property>
+				<!-- 没有权限跳转的地址 -->
+				<property name="unauthorizedUrl" value="/refuse.action" />
+				<property name="filterChainDefinitions">
+					<value>
+						<!-- 定义所需的权限信息,用注解的方式校验权限的时候,下面的可以屏蔽 -->
+						<!-- /item/query.action=perms[item:query]
+						/item/delete02.action=perms[item:delete:02] -->
+						<!-- 定义退出的路径 -->
+						/logout.action = logout
+						/** = authc					
+					</value>
+				</property>
+			</bean>
+		
+		<!-- 缓存管理器 -->
+		<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+    		<property name="cacheManagerConfigFile" value="classpath:shiro-ehcache.xml"/>
+    	</bean>
+
+</beans>

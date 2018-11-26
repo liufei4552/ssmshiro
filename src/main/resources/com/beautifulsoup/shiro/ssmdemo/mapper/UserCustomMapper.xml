@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.beautifulsoup.shiro.ssmdemo.mapper.UserCustomMapper">
+
+	<resultMap id="getUserPermissions" type="userCustom" >
+	    <id column="uid" property="uid" jdbcType="INTEGER" />
+	    <result column="username" property="username" jdbcType="VARCHAR" />
+	    <result column="password" property="password" jdbcType="VARCHAR" />
+	    <result column="phone" property="phone" jdbcType="VARCHAR" />
+	    <result column="address" property="address" jdbcType="VARCHAR" />
+	    <result column="salt" property="salt" jdbcType="VARCHAR" />
+  		<collection property="roleSet" ofType="roleCustom">
+  			<id column="rid" property="rid" jdbcType="INTEGER" />
+		    <result column="rname" property="rname" jdbcType="VARCHAR" />
+		    <result column="rdesc" property="rdesc" jdbcType="VARCHAR" />
+		    <collection property="permissionSet" ofType="permission">
+		    	<id column="pid" property="pid" jdbcType="INTEGER"/>
+		    	<result column="pname" property="pname" jdbcType="VARCHAR" />
+			    <result column="url" property="url" jdbcType="VARCHAR" />
+			    <result column="pdesc" property="pdesc" jdbcType="VARCHAR" />
+		    </collection>
+  		</collection>
+  	</resultMap>
+
+	<select id="findUserCustomByUsername" parameterType="string" resultMap="getUserPermissions">
+		select user.*,role.*,permission.*
+		from user 
+		left join user_role on user.uid = user_role.uid
+		left join role on user_role.rid=role.rid
+		left join permission_role on role.rid=permission_role.rid
+		left join permission on permission_role.pid=permission.pid
+		where user.username = #{username} 
+	</select>
+	
+</mapper>
